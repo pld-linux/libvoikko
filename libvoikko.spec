@@ -1,4 +1,8 @@
-# TODO: hfst, lttoolbox backends
+#
+# Conditional build:
+%bcond_with	hfst		# HFST morphology backend (experimental)
+%bcond_with	lttoolbox	# lttoolbox morphology backend (experimental)
+#
 Summary:	Library for spell checking, hyphenation and grammar checking
 Summary(pl.UTF-8):	Biblioteka do sprawdzania pisowni i gramatyki oraz przenoszenia wyrazów
 Name:		libvoikko
@@ -9,9 +13,11 @@ Group:		Libraries
 Source0:	http://downloads.sourceforge.net/voikko/%{name}-%{version}.tar.gz
 # Source0-md5:	407c5a5ad83ef86fb76ef4502e0e8e72
 URL:		http://voikko.sourceforge.net/
-#BuildRequires:	hfst-devel >= 2.4
+%{?with_hfst:BuildRequires:	hfst-devel >= 2.4}
 BuildRequires:	libstdc++-devel
-#BuildRequires:	lttoolbox-devel >= 3.1.0
+%{?with_lttoolbox:BuildRequires:	lttoolbox-devel >= 3.1.0}
+%{?with_lttoolbox:BuildRequires:	lttoolbox-devel < 3.2.0}
+%{?with_hfst:Requires:	hfst >= 2.4}
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %description
@@ -39,6 +45,8 @@ Summary:	Header files for libvoikko library
 Summary(pl.UTF-8):	Pliki nagłówkowe biblioteki libvoikko
 Group:		Development/Libraries
 Requires:	%{name} = %{version}-%{release}
+%{?with_hfst:Requires:	hfst-devel >= 2.4}
+%{?with_lttoolbox:Requires:	lttoolbox-devel >= 3.1.0}
 Requires:	libstdc++-devel
 
 %description devel
@@ -65,12 +73,14 @@ Statyczna biblioteka libvoikko.
 %build
 # NOTE: malaga compiled dictionaries are arch-dependent
 %configure \
+	%{?with_hfst:--enable-hfst} \
+	%{?with_lttoolbox:--enable-lttoolbox} \
 	--with-dictionary-path=%{_libdir}/voikko
 %{__make}
 
 %install
 rm -rf $RPM_BUILD_ROOT
-install -d $RPM_BUILD_ROOT%{_libdir}/voikko
+install -d $RPM_BUILD_ROOT%{_libdir}/voikko/2/mor-{default,standard}
 
 %{__make} install \
 	DESTDIR=$RPM_BUILD_ROOT
@@ -90,6 +100,9 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_libdir}/libvoikko.so.*.*.*
 %attr(755,root,root) %ghost %{_libdir}/libvoikko.so.1
 %dir %{_libdir}/voikko
+%dir %{_libdir}/voikko/2
+%dir %{_libdir}/voikko/2/mor-default
+%dir %{_libdir}/voikko/2/mor-standard
 %{_mandir}/man1/voikkogc.1*
 %{_mandir}/man1/voikkohyphenate.1*
 %{_mandir}/man1/voikkospell.1*
