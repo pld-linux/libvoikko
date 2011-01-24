@@ -17,6 +17,8 @@ URL:		http://voikko.sourceforge.net/
 BuildRequires:	libstdc++-devel
 %{?with_lttoolbox:BuildRequires:	lttoolbox-devel >= 3.1.0}
 %{?with_lttoolbox:BuildRequires:	lttoolbox-devel < 3.2.0}
+BuildRequires:	python
+BuildRequires:	python-modules
 %{?with_hfst:Requires:	hfst >= 2.4}
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
@@ -27,14 +29,15 @@ morphology of Finnish language. The morphology is developed using
 Malaga natural language development tool.
 
 libvoikko provides spell checking, hyphenation, grammar checking and
-morphological analysis for Finnish language. Support for other languages
-is in experimental state.
+morphological analysis for Finnish language. Support for other
+languages is in experimental state.
 
 %description -l pl.UTF-8
 libvoikko to biblioteka wolnodostępnych narzędzi dla języka fińskiego.
-Jest napisana w C++ i do opisu morfologii języka fińskiego wykorzystuje
-gramatykę wiązaną lewostronnie. Morfologię tworzy się przy użyciu
-Malagi - narzędzia do programowania gramatyk języków naturalnych.
+Jest napisana w C++ i do opisu morfologii języka fińskiego
+wykorzystuje gramatykę wiązaną lewostronnie. Morfologię tworzy się
+przy użyciu Malagi - narzędzia do programowania gramatyk języków
+naturalnych.
 
 libvoikko udostępnia sprawdzanie pisowni, przenoszenie wyrazów,
 sprawdzanie gramatyki oraz analizę morfologiczną dla języka fińskiego.
@@ -46,8 +49,8 @@ Summary(pl.UTF-8):	Pliki nagłówkowe biblioteki libvoikko
 Group:		Development/Libraries
 Requires:	%{name} = %{version}-%{release}
 %{?with_hfst:Requires:	hfst-devel >= 2.4}
-%{?with_lttoolbox:Requires:	lttoolbox-devel >= 3.1.0}
 Requires:	libstdc++-devel
+%{?with_lttoolbox:Requires:	lttoolbox-devel >= 3.1.0}
 
 %description devel
 Header files for libvoikko library.
