@@ -6,12 +6,12 @@
 Summary:	Library for spell checking, hyphenation and grammar checking
 Summary(pl.UTF-8):	Biblioteka do sprawdzania pisowni i gramatyki oraz przenoszenia wyrazów
 Name:		libvoikko
-Version:	3.1
+Version:	3.2
 Release:	1
 License:	GPL v2+
 Group:		Libraries
 Source0:	http://downloads.sourceforge.net/voikko/%{name}-%{version}.tar.gz
-# Source0-md5:	407c5a5ad83ef86fb76ef4502e0e8e72
+# Source0-md5:	0525e11e1822b8155fcc599c3c580842
 URL:		http://voikko.sourceforge.net/
 %{?with_hfst:BuildRequires:	hfst-devel >= 2.4}
 BuildRequires:	libstdc++-devel
