@@ -12,6 +12,7 @@ License:	GPL v2+
 Group:		Libraries
 Source0:	http://downloads.sourceforge.net/voikko/%{name}-%{version}.tar.gz
 # Source0-md5:	bb5f5b230651452c43201dffa36d2d0c
+Patch0:		gcc49.patch
 URL:		http://voikko.sourceforge.net/
 %{?with_hfst:BuildRequires:	hfst-devel >= 2.4}
 BuildRequires:	libstdc++-devel
@@ -72,6 +73,7 @@ Statyczna biblioteka libvoikko.
 
 %prep
 %setup -q
+%patch0 -p1
 
 %build
 # NOTE: malaga compiled dictionaries are arch-dependent

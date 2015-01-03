@@ -1,0 +1,11 @@
+--- libvoikko-3.3.1/src/setup/DictionaryLoader.cpp~	2011-02-22 05:06:57.000000000 +0000
++++ libvoikko-3.3.1/src/setup/DictionaryLoader.cpp	2015-01-03 21:20:27.634991966 +0000
+@@ -22,6 +22,8 @@
+ #include <string>
+ #include <fstream>
+ #include <cstdlib>
++#include <unistd.h>
++#include <sys/types.h>
+ #ifdef WIN32
+ # include <windows.h>
+ #else
