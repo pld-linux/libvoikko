@@ -2,25 +2,26 @@
 # Conditional build:
 %bcond_with	hfst		# HFST morphology backend (experimental)
 %bcond_with	lttoolbox	# lttoolbox morphology backend (experimental)
+%bcond_with	vfst		# VFST morphology backend (experimental)
 #
 Summary:	Library for spell checking, hyphenation and grammar checking
 Summary(pl.UTF-8):	Biblioteka do sprawdzania pisowni i gramatyki oraz przenoszenia wyrazów
 Name:		libvoikko
-Version:	3.3.1
-Release:	2
+Version:	3.6
+Release:	1
 License:	GPL v2+
 Group:		Libraries
 Source0:	http://downloads.sourceforge.net/voikko/%{name}-%{version}.tar.gz
-# Source0-md5:	bb5f5b230651452c43201dffa36d2d0c
+# Source0-md5:	690412f69a06a602411af8db565a1330
 Patch0:		gcc49.patch
 URL:		http://voikko.sourceforge.net/
-%{?with_hfst:BuildRequires:	hfst-devel >= 2.4}
+%{?with_hfst:BuildRequires:	hfst-ospell-devel >= 0.2}
 BuildRequires:	libstdc++-devel
 %{?with_lttoolbox:BuildRequires:	lttoolbox-devel >= 3.2.0}
 BuildRequires:	pkgconfig
 BuildRequires:	python
 BuildRequires:	python-modules
-%{?with_hfst:Requires:	hfst >= 2.4}
+%{?with_hfst:Requires:	hfst-ospell >= 0.2}
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %description
@@ -80,6 +81,7 @@ Statyczna biblioteka libvoikko.
 %configure \
 	%{?with_hfst:--enable-hfst} \
 	%{?with_lttoolbox:--enable-lttoolbox} \
+	%{?with_vfst:--enable-vfst} \
 	--with-dictionary-path=%{_libdir}/voikko
 %{__make}
 
@@ -102,6 +104,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/voikkogc
 %attr(755,root,root) %{_bindir}/voikkohyphenate
 %attr(755,root,root) %{_bindir}/voikkospell
+%attr(755,root,root) %{_bindir}/voikkovfstc
 %attr(755,root,root) %{_libdir}/libvoikko.so.*.*.*
 %attr(755,root,root) %ghost %{_libdir}/libvoikko.so.1
 %dir %{_libdir}/voikko
@@ -111,6 +114,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/voikkogc.1*
 %{_mandir}/man1/voikkohyphenate.1*
 %{_mandir}/man1/voikkospell.1*
+%{_mandir}/man1/voikkovfstc.1*
 
 %files devel
 %defattr(644,root,root,755)
