@@ -1,26 +1,42 @@
+# TODO: java (BR: maven), common-lisp, csharp, js, python (2.7, 3+) bindings
 #
 # Conditional build:
-%bcond_with	hfst		# HFST morphology backend (experimental)
+%bcond_without	hfst		# HFST morphology backend
 %bcond_with	lttoolbox	# lttoolbox morphology backend (experimental)
-%bcond_with	vfst		# VFST morphology backend (experimental)
+%bcond_without	malaga		# Finnish morphology backend (formerly default, now deprecated)
+%bcond_without	vfst		# VFST morphology backend, experimental language independent backend
+%bcond_with	vfst_exp	# VFST morphology backend - experimental features
+%bcond_with	vislcg3		# VISLCG3 support (experimental)
 #
 Summary:	Library for spell checking, hyphenation and grammar checking
 Summary(pl.UTF-8):	Biblioteka do sprawdzania pisowni i gramatyki oraz przenoszenia wyrazów
 Name:		libvoikko
-Version:	3.6
+Version:	4.1.1
 Release:	1
+%if %{with malaga} || %{with lttoolbox}
 License:	GPL v2+
+%else
+License:	MPL v1.1 or LGPL v2.1+ or GPL v2+
+%endif
 Group:		Libraries
-Source0:	http://downloads.sourceforge.net/voikko/%{name}-%{version}.tar.gz
-# Source0-md5:	690412f69a06a602411af8db565a1330
-Patch0:		gcc49.patch
-URL:		http://voikko.sourceforge.net/
+#Source0Download: https://github.com/voikko/corevoikko/releases
+Source0:	https://github.com/voikko/corevoikko/archive/rel-libvoikko-%{version}/%{name}-%{version}.tar.gz
+# Source0-md5:	94894137eadc507cf61c5bfb03d2656f
+URL:		http://voikko.puimula.org/
+%if %{with tests} && %(locale -a | grep -q '^C\.UTF-8$'; echo $?)
+BuildRequires:	glibc-localedb-all
+%endif
+BuildRequires:	autoconf >= 2.60
+BuildRequires:	automake >= 1:1.10
 %{?with_hfst:BuildRequires:	hfst-ospell-devel >= 0.2}
-BuildRequires:	libstdc++-devel
+BuildRequires:	libstdc++-devel >= 6:4.7
+BuildRequires:	libtool >= 2:2.2.6
 %{?with_lttoolbox:BuildRequires:	lttoolbox-devel >= 3.2.0}
 BuildRequires:	pkgconfig
-BuildRequires:	python
-BuildRequires:	python-modules
+BuildRequires:	python3 >= 1:3
+BuildRequires:	python3-modules >= 1:3
+%{?with_vislcg3:BuildRequires:	tinyxml2-devel}
+%{?with_vislcg3:BuildRequires:	vislcg3-devel >= 0.9}
 %{?with_hfst:Requires:	hfst-ospell >= 0.2}
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
@@ -50,9 +66,6 @@ Summary:	Header files for libvoikko library
 Summary(pl.UTF-8):	Pliki nagłówkowe biblioteki libvoikko
 Group:		Development/Libraries
 Requires:	%{name} = %{version}-%{release}
-%{?with_hfst:Requires:	hfst-devel >= 2.4}
-Requires:	libstdc++-devel
-%{?with_lttoolbox:Requires:	lttoolbox-devel >= 3.2.0}
 
 %description devel
 Header files for libvoikko library.
@@ -73,24 +86,46 @@ Static libvoikko library.
 Statyczna biblioteka libvoikko.
 
 %prep
-%setup -q
-%patch0 -p1
+%setup -q -n corevoikko-rel-libvoikko-%{version}
 
 %build
-# NOTE: malaga compiled dictionaries are arch-dependent
+cd libvoikko
+%{__libtoolize}
+%{__aclocal} -I m4
+%{__autoconf}
+%{__autoheader}
+%{__automake}
 %configure \
-	%{?with_hfst:--enable-hfst} \
+	%{!?with_hfst:--disable-hfst} \
 	%{?with_lttoolbox:--enable-lttoolbox} \
-	%{?with_vfst:--enable-vfst} \
-	--with-dictionary-path=%{_libdir}/voikko
+	%{?with_malaga:--enable-malaga} \
+	%{!?with_vfst:--disable-vfst} \
+	%{?with_vfst_exp:--enable-expvfst} \
+	%{?with_vislcg3:--enable-vislcg3} \
+	--with-dictionary-path=%{_datadir}/voikko:%{_libdir}/voikko
+
+# python script needs non-ascii locale
+LC_ALL=C.UTF-8 \
 %{__make}
 
 %install
 rm -rf $RPM_BUILD_ROOT
+install -d $RPM_BUILD_ROOT{%{_libdir},%{_datadir}}/voikko
+%if %{with malaga}
 install -d $RPM_BUILD_ROOT%{_libdir}/voikko/2/mor-{default,standard}
+%endif
+%if %{with hfst}
+install -d $RPM_BUILD_ROOT%{_datadir}/voikko/{3,4}/mor-{default,standard}
+%endif
+%if %{with vfst}
+install -d $RPM_BUILD_ROOT%{_datadir}/voikko/5/mor-{default,standard}
+%endif
 
-%{__make} install \
+%{__make} -C libvoikko install \
 	DESTDIR=$RPM_BUILD_ROOT
+
+# obsoleted by pkg-config
+%{__rm} $RPM_BUILD_ROOT%{_libdir}/libvoikko.la
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -100,17 +135,35 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(644,root,root,755)
-%doc ChangeLog README
+%doc libvoikko/{ChangeLog,README}
 %attr(755,root,root) %{_bindir}/voikkogc
 %attr(755,root,root) %{_bindir}/voikkohyphenate
 %attr(755,root,root) %{_bindir}/voikkospell
 %attr(755,root,root) %{_bindir}/voikkovfstc
 %attr(755,root,root) %{_libdir}/libvoikko.so.*.*.*
 %attr(755,root,root) %ghost %{_libdir}/libvoikko.so.1
+# for arch-dependent dictionaries
 %dir %{_libdir}/voikko
+%if %{with malaga}
 %dir %{_libdir}/voikko/2
 %dir %{_libdir}/voikko/2/mor-default
 %dir %{_libdir}/voikko/2/mor-standard
+%endif
+# for arch-independent dictionaries
+%dir %{_datadir}/voikko
+%if %{with hfst}
+%dir %{_datadir}/voikko/3
+%dir %{_datadir}/voikko/3/mor-default
+%dir %{_datadir}/voikko/3/mor-standard
+%dir %{_datadir}/voikko/4
+%dir %{_datadir}/voikko/4/mor-default
+%dir %{_datadir}/voikko/4/mor-standard
+%endif
+%if %{with vfst}
+%dir %{_datadir}/voikko/5
+%dir %{_datadir}/voikko/5/mor-default
+%dir %{_datadir}/voikko/5/mor-standard
+%endif
 %{_mandir}/man1/voikkogc.1*
 %{_mandir}/man1/voikkohyphenate.1*
 %{_mandir}/man1/voikkospell.1*
@@ -119,7 +172,6 @@ rm -rf $RPM_BUILD_ROOT
 %files devel
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_libdir}/libvoikko.so
-%{_libdir}/libvoikko.la
 %{_includedir}/libvoikko
 %{_pkgconfigdir}/libvoikko.pc
 
