@@ -1,4 +1,4 @@
-# TODO: java (BR: maven), common-lisp, csharp, js, python (2.7, 3+) bindings
+# TODO: java (BR: maven), csharp, js bindings
 #
 # Conditional build:
 %bcond_without	hfst		# HFST morphology backend
@@ -7,12 +7,14 @@
 %bcond_without	vfst		# VFST morphology backend, experimental language independent backend
 %bcond_with	vfst_exp	# VFST morphology backend - experimental features
 %bcond_with	vislcg3		# VISLCG3 support (experimental)
+%bcond_with	dotnet		# C#/Mono library (TODO: finish install)
+%bcond_without	python2		# CPython 2.x module
 #
 Summary:	Library for spell checking, hyphenation and grammar checking
 Summary(pl.UTF-8):	Biblioteka do sprawdzania pisowni i gramatyki oraz przenoszenia wyrazów
 Name:		libvoikko
 Version:	4.1.1
-Release:	1
+Release:	2
 %if %{with malaga} || %{with lttoolbox}
 License:	GPL v2+
 %else
@@ -32,9 +34,13 @@ BuildRequires:	automake >= 1:1.10
 BuildRequires:	libstdc++-devel >= 6:4.7
 BuildRequires:	libtool >= 2:2.2.6
 %{?with_lttoolbox:BuildRequires:	lttoolbox-devel >= 3.2.0}
+%{?with_dotnet:BuildRequires:	mono-devel}
 BuildRequires:	pkgconfig
+%{?with_python2:BuildRequires:	python-modules >= 1:2.7}
 BuildRequires:	python3 >= 1:3
 BuildRequires:	python3-modules >= 1:3
+BuildRequires:	rpm-pythonprov
+BuildRequires:	rpmbuild(macros) >= 1.612
 %{?with_vislcg3:BuildRequires:	tinyxml2-devel}
 %{?with_vislcg3:BuildRequires:	vislcg3-devel >= 0.9}
 %{?with_hfst:Requires:	hfst-ospell >= 0.2}
@@ -85,6 +91,45 @@ Static libvoikko library.
 %description static -l pl.UTF-8
 Statyczna biblioteka libvoikko.
 
+%package -n common-lisp-voikko
+Summary:	Common Lisp binding for libvoikko library
+Summary(pl.UTF-8):	Wiązania Common Lispa do biblioteki libvoikko
+Group:		Libraries
+Requires:	%{name} = %{version}-%{release}
+Requires:	common-lisp-controller
+
+%description -n common-lisp-voikko
+Common Lisp binding for libvoikko library.
+
+%description -n common-lisp-voikko -l pl.UTF-8
+Wiązania Common Lispa do biblioteki libvoikko.
+
+%package -n python-libvoikko
+Summary:	Python 2 binding for libvoikko library
+Summary(pl.UTF-8):	Wiązania Pythona 2 do biblioteki libvoikko
+Group:		Libraries/Python
+Requires:	%{name} = %{version}-%{release}
+Requires:	python-modules >= 1:2.7
+
+%description -n python-libvoikko
+Python 2 binding for libvoikko library.
+
+%description -n python-libvoikko -l pl.UTF-8
+Wiązania Pythona 2 do biblioteki libvoikko.
+
+%package -n python3-libvoikko
+Summary:	Python 3 binding for libvoikko library
+Summary(pl.UTF-8):	Wiązania Pythona 3 do biblioteki libvoikko
+Group:		Libraries/Python
+Requires:	%{name} = %{version}-%{release}
+Requires:	python3-modules >= 1:3.2
+
+%description -n python3-libvoikko
+Python 3 binding for libvoikko library.
+
+%description -n python3-libvoikko -l pl.UTF-8
+Wiązania Pythona 3 do biblioteki libvoikko.
+
 %prep
 %setup -q -n corevoikko-rel-libvoikko-%{version}
 
@@ -108,6 +153,12 @@ cd libvoikko
 LC_ALL=C.UTF-8 \
 %{__make}
 
+%if %{with dotnet}
+cd libvoikko/cs
+xbuild /property:configuration=Release
+# TODO: install
+%endif
+
 %install
 rm -rf $RPM_BUILD_ROOT
 install -d $RPM_BUILD_ROOT{%{_libdir},%{_datadir}}/voikko
@@ -126,6 +177,22 @@ install -d $RPM_BUILD_ROOT%{_datadir}/voikko/5/mor-{default,standard}
 
 # obsoleted by pkg-config
 %{__rm} $RPM_BUILD_ROOT%{_libdir}/libvoikko.la
+
+install -d $RPM_BUILD_ROOT%{_datadir}/common-lisp/source/voikko
+cp -p libvoikko/cl/*.{asd,lisp} $RPM_BUILD_ROOT%{_datadir}/common-lisp/source/voikko
+
+%if %{with python2}
+install -d $RPM_BUILD_ROOT%{py_sitescriptdir}
+cp -p libvoikko/python/libvoikko.py $RPM_BUILD_ROOT%{py_sitescriptdir}
+%py_comp $RPM_BUILD_ROOT%{py_sitescriptdir}
+%py_ocomp $RPM_BUILD_ROOT%{py_sitescriptdir}
+%py_postclean
+%endif
+
+install -d $RPM_BUILD_ROOT%{py3_sitescriptdir}
+cp -p libvoikko/python/libvoikko.py $RPM_BUILD_ROOT%{py3_sitescriptdir}
+%py3_comp $RPM_BUILD_ROOT%{py3_sitescriptdir}
+%py3_ocomp $RPM_BUILD_ROOT%{py3_sitescriptdir}
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -178,3 +245,18 @@ rm -rf $RPM_BUILD_ROOT
 %files static
 %defattr(644,root,root,755)
 %{_libdir}/libvoikko.a
+
+%files -n common-lisp-voikko
+%defattr(644,root,root,755)
+%{_datadir}/common-lisp/source/voikko
+
+%if %{with python2}
+%files -n python-libvoikko
+%defattr(644,root,root,755)
+%{py_sitescriptdir}/libvoikko.py[co]
+%endif
+
+%files -n python3-libvoikko
+%defattr(644,root,root,755)
+%{py3_sitescriptdir}/libvoikko.py
+%{py3_sitescriptdir}/__pycache__/libvoikko.cpython-*.py[co]
