@@ -14,7 +14,7 @@ Summary:	Library for spell checking, hyphenation and grammar checking
 Summary(pl.UTF-8):	Biblioteka do sprawdzania pisowni i gramatyki oraz przenoszenia wyrazów
 Name:		libvoikko
 Version:	4.1.1
-Release:	2
+Release:	3
 %if %{with malaga} || %{with lttoolbox}
 License:	GPL v2+
 %else
