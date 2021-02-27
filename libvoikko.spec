@@ -109,6 +109,7 @@ Summary(pl.UTF-8):	Wiązania Pythona 2 do biblioteki libvoikko
 Group:		Libraries/Python
 Requires:	%{name} = %{version}-%{release}
 Requires:	python-modules >= 1:2.7
+BuildArch:	noarch
 
 %description -n python-libvoikko
 Python 2 binding for libvoikko library.
@@ -122,6 +123,7 @@ Summary(pl.UTF-8):	Wiązania Pythona 3 do biblioteki libvoikko
 Group:		Libraries/Python
 Requires:	%{name} = %{version}-%{release}
 Requires:	python3-modules >= 1:3.2
+BuildArch:	noarch
 
 %description -n python3-libvoikko
 Python 3 binding for libvoikko library.
