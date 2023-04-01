@@ -35,6 +35,7 @@ BuildRequires:	libtool >= 2:2.2.6
 %{?with_lttoolbox:BuildRequires:	lttoolbox-devel >= 3.2.0}
 %{?with_dotnet:BuildRequires:	mono-devel}
 BuildRequires:	pkgconfig
+%{?with_python2:BuildRequires:	python}
 %{?with_python2:BuildRequires:	python-modules >= 1:2.7}
 BuildRequires:	python3 >= 1:3
 BuildRequires:	python3-modules >= 1:3
