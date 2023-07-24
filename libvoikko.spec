@@ -12,8 +12,8 @@
 Summary:	Library for spell checking, hyphenation and grammar checking
 Summary(pl.UTF-8):	Biblioteka do sprawdzania pisowni i gramatyki oraz przenoszenia wyrazów
 Name:		libvoikko
-Version:	4.3.1
-Release:	4
+Version:	4.3.2
+Release:	1
 %if %{with lttoolbox}
 License:	GPL v2+
 %else
@@ -22,7 +22,7 @@ License:	MPL v1.1 or LGPL v2.1+ or GPL v2+
 Group:		Libraries
 #Source0Download: https://github.com/voikko/corevoikko/releases
 Source0:	https://github.com/voikko/corevoikko/archive/rel-libvoikko-%{version}/%{name}-%{version}.tar.gz
-# Source0-md5:	3b96834ddeab9d1442c1be2f329493f3
+# Source0-md5:	7bd625ff1f256d51e598b43e1e1aa99c
 URL:		https://voikko.puimula.org/
 %if %{with tests} && %(locale -a | grep -q '^C\.utf8$'; echo $?)
 BuildRequires:	glibc-localedb-all
@@ -30,7 +30,7 @@ BuildRequires:	glibc-localedb-all
 BuildRequires:	autoconf >= 2.62
 BuildRequires:	automake >= 1:1.11
 %{?with_hfst:BuildRequires:	hfst-ospell-devel >= 0.5}
-BuildRequires:	libstdc++-devel >= 6:4.7
+BuildRequires:	libstdc++-devel >= 6:5
 BuildRequires:	libtool >= 2:2.2.6
 %{?with_lttoolbox:BuildRequires:	lttoolbox-devel >= 3.2.0}
 %{?with_dotnet:BuildRequires:	mono-devel}
