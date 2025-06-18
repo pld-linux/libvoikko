@@ -12,17 +12,17 @@
 Summary:	Library for spell checking, hyphenation and grammar checking
 Summary(pl.UTF-8):	Biblioteka do sprawdzania pisowni i gramatyki oraz przenoszenia wyrazów
 Name:		libvoikko
-Version:	4.3.2
-Release:	2
+Version:	4.3.3
+Release:	1
 %if %{with lttoolbox}
 License:	GPL v2+
 %else
 License:	MPL v1.1 or LGPL v2.1+ or GPL v2+
 %endif
 Group:		Libraries
-#Source0Download: https://github.com/voikko/corevoikko/releases
+#Source0Download: https://github.com/voikko/corevoikko/tags
 Source0:	https://github.com/voikko/corevoikko/archive/rel-libvoikko-%{version}/%{name}-%{version}.tar.gz
-# Source0-md5:	7bd625ff1f256d51e598b43e1e1aa99c
+# Source0-md5:	403dadfede54e7570147f5a85e70d4c9
 URL:		https://voikko.puimula.org/
 %if %{with tests} && %(locale -a | grep -q '^C\.utf8$'; echo $?)
 BuildRequires:	glibc-localedb-all
